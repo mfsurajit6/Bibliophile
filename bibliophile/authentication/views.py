@@ -392,7 +392,7 @@ class GetAllUsersAPIView(APIView):
 
         users = CustomUser.objects.all()
         # print(users)
-        serializer = GetUserSerializer(users, many=True)
+        serializer = GetUserSerializer(users, many=True,context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class GetUserSearchAPIView(APIView):

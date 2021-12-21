@@ -19,7 +19,6 @@ import SearchAuto from "./SearchBoth";
 import { getProfileById } from "../helpers/ProfileHelper";
 // import UserSearch from "./UserSearch";
 
-
 const useStyle = makeStyles((theme) => ({
   logo: {
     display: "inline",
@@ -37,24 +36,23 @@ const useStyle = makeStyles((theme) => ({
   search: {
     // display: 'inline'
   },
-  menuicon:{
-    color: 'white',
+  menuicon: {
+    color: "white",
   },
   drawer: {
-    width: '200px',
+    width: "200px",
   },
-  drawermenu:{
-    "& Button":{
-      display: 'block',
-      margin: '3px 25px 3px 5px',
+  drawermenu: {
+    "& Button": {
+      display: "block",
+      margin: "3px 25px 3px 5px",
     },
-    "& a":{
-      display: 'block',
-      margin: '3px 25px 3px 5px',
-    }
-  }
+    "& a": {
+      display: "block",
+      margin: "3px 25px 3px 5px",
+    },
+  },
 }));
-
 
 const Navbar = () => {
   const classes = useStyle();
@@ -66,57 +64,57 @@ const Navbar = () => {
   const bibId = localStorage.getItem("bib_id");
 
   const Menu = () => {
-    return(
+    return (
       <>
         <Button color="inherit" component={Link} to="/">
-            Home
-          </Button>
-          {isAuthenticated() ? (
-            <>
-              <Button color="inherit" component={Link} to="/books">
-                Books
-              </Button>
-              <Button
-                color="inherit"
-                component={Link}
-                to={publicUrl}
-                params={{ isProfilePage: true }}
-              >
-                Profile
-              </Button>
-              <Button
-                color="inherit"
-                onClick={() => {
-                  signout(() => navigate("/"));
-                }}
-              >
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button color="inherit" component={Link} to="/signin">
-                Sign In
-              </Button>
-              <Button color="inherit" component={Link} to="/signup">
-                Sign Up
-              </Button>
-            </>
-          )}
+          Home
+        </Button>
+        {isAuthenticated() ? (
+          <>
+            <Button color="inherit" component={Link} to="/books">
+              Books
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to={publicUrl}
+              params={{ isProfilePage: true }}
+            >
+              Profile
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => {
+                signout(() => navigate("/"));
+              }}
+            >
+              Logout
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button color="inherit" component={Link} to="/signin">
+              Sign In
+            </Button>
+            <Button color="inherit" component={Link} to="/signup">
+              Sign Up
+            </Button>
+          </>
+        )}
       </>
-    )
-  }
+    );
+  };
 
   useEffect(() => {
     if (bibId) {
       getProfileById(localStorage.getItem("bib_id"))
         .then((data) => {
           // console.log("Nav ",data);
-          if(data === 401){
+          if (data === 401) {
             localStorage.removeItem("bib_token");
             localStorage.removeItem("bib_id");
-            navigate("/signin")
-          } else{
+            navigate("/signin");
+          } else {
             let profile_url = "/profile/" + data.public_url;
             // console.log("Nav Bar"+profile_url)
             setPublicUrl(profile_url);
@@ -130,7 +128,7 @@ const Navbar = () => {
 
   window.onbeforeunload = () => {
     // signout();
-  }
+  };
 
   return (
     <AppBar position="static">
@@ -143,36 +141,20 @@ const Navbar = () => {
               </Typography>
             </Grid>
             <Grid item sm={8}>
-              {/* <div className={classes.search}>
-                                {
-                                    isAuthenticated() && (
-                                        <Search />
-                                    )
-                                }
-                            </div> */}
-              <div className={classes.search} style={{ marginLeft: "10px" }}>
-                {/* {isAuthenticated() && (location.pathname.split("/")[1] === 'profile' ? (
-                  <>
-                    <UserSearch />
-                  </>
-                ) : (
-                  <SearchAuto />
-                ))} */}
+              <div className={classes.search}>
                 {isAuthenticated() && <SearchAuto />}
               </div>
             </Grid>
           </Grid>
         </div>
         <Hidden xsDown>
-        <div>
-          {Menu()}
-        </div>
+          <div>{Menu()}</div>
         </Hidden>
         <Hidden smUp>
-            <IconButton onClick={() => setOpen(true)}>
-              <MenuIcon className={classes.menuicon}/>
-            </IconButton>
-          </Hidden>
+          <IconButton onClick={() => setOpen(true)}>
+            <MenuIcon className={classes.menuicon} />
+          </IconButton>
+        </Hidden>
       </Toolbar>
       <SwipeableDrawer
         anchor="right"
@@ -192,9 +174,7 @@ const Navbar = () => {
           </IconButton>
         </div>
         <Divider />
-        <div className={classes.drawermenu}>
-          {Menu()}
-        </div>
+        <div className={classes.drawermenu}>{Menu()}</div>
       </SwipeableDrawer>
     </AppBar>
   );

@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, Box, Container, Grid, TextField, Card, CardContent, Button, Typography, makeStyles } from '@material-ui/core';
-import { signup, sendMail } from '../../helpers/AuthHelper';
+import { signup, sendMail, isAuthenticated } from '../../helpers/AuthHelper';
 
 
 const useStyle = makeStyles((theme) => ({
@@ -49,6 +49,11 @@ const SignUp = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState(false);
     const [response, setResponse] = useState('');
+
+    useEffect(()=>{
+        if(isAuthenticated()){
+          navigate("/");
+        }})
 
     let emailRe = /\S+@\S+\.\S+/;
     let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})')

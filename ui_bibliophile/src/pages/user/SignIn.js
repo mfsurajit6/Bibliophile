@@ -65,13 +65,10 @@ const SignIn = () => {
   const [response, setResponse] = useState("");
   const [messageColor, setMessageColor] = useState("red");
 
-  if (isAuthenticated()) {
-    console.log("Authenticated");
-    navigate("/");
-    // return null;
-  }
-
   useEffect(()=>{
+    if(isAuthenticated()){
+      navigate("/");
+    }
     if (location.state) {
       if (location.state.accountVerified) {
         setResponse("Account Verified Successfully. Please login to continue");

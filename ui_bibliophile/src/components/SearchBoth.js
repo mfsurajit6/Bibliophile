@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   makeStyles,
@@ -9,7 +9,9 @@ import {
 import { SearchOutlined } from "@material-ui/icons";
 import ClearIcon from "@mui/icons-material/Clear";
 import { getSearchResults } from "../helpers/BookAPICalles";
-import { getAllUsers } from "../helpers/ProfileHelper";
+import { getUserSearchResults } from "../helpers/ProfileHelper";
+import defaultBook from "../images/default-book.jpg";
+import defaultUserImage from "../images/user.png";
 
 const useStyle = makeStyles((theme) => ({
   search: {
@@ -23,10 +25,10 @@ const useStyle = makeStyles((theme) => ({
     borderRadius: "3px",
   },
   suggestionDiv: {
-    maxHeight: "300px",
+    maxHeight: "500px",
     color: "black",
     position: "absolute",
-    backgroundColor: "white",
+    backgroundColor: "#dedede",
     padding: "10px",
     fontSize: "18px",
     border: "1px solid black",
@@ -36,70 +38,81 @@ const useStyle = makeStyles((theme) => ({
     zIndex: "2",
   },
   ss: {
-    borderBottom: "1px solid black",
     padding: "5px 2px",
     cursor: "pointer",
-    "&:hover": {
-      backgroundColor: "#d4d4d4",
-    },
-    hidden: {
-      display: "none",
-    },
+    marginBottom: "3px",
+    backgroundColor: "#ffffff",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+  seeall: {
+    bottom: 0,
+    padding: "5px 3px",
+    backgroundColor: "#dedede",
+    cursor: "pointer",
+  },
+  seealltext: {
+    display: "block",
+    textAlign: "center",
+    color: "blue",
   },
   people: {
-    marginLeft: '20px',
-    color: '#898989',
-    fontSize: '15px'
-  }
+    marginLeft: "20px",
+    fontSize: "15px",
+  },
 }));
 
 const SearchAuto = () => {
   const classes = useStyle();
   const navigate = useNavigate();
 
-  const [users, setUsers] = useState([]);
   const [searchKey, setSearchKey] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
   const old_text = useRef("");
 
-  useEffect(() => {
-    getAllUsers()
-      .then((res) => {
-        setUsers(res);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
   const handleChange = (e) => {
     let text = e.target.value;
-
     let matches = [];
 
     if (text.length > 0) {
       setTimeout(() => {
         text = e.target.value;
-        matches = users.filter((user) => {
-          const regex = new RegExp(`${text}`, "gi");
-          return user.name.match(regex);
-        });
-        // console.log(text, matches);
-
         if (text !== old_text.current) {
           // console.log(text, old_text.current);
           old_text.current = text;
+          getUserSearchResults(searchKey)
+            .then((res) => {
+              if (res) {
+                // console.log(res);
+                if (res.length > 5) {
+                  matches = matches.concat(res.slice(0, 5));
+                } else {
+                  matches = matches.concat(res);
+                }
+              }
+            })
+            .catch((err) => console.log(err));
+
           getSearchResults(text).then((res) => {
             if (res) {
               let bookMatches = res.map((book) => {
-                let link = book.volumeInfo.title.split(" ").join("-") + `-id-${book.id}`;
+                let link =
+                  book.volumeInfo.title.split(" ").join("-") + `-id-${book.id}`;
                 return {
                   name: book.volumeInfo.title,
                   id: book.id,
+                  image: book.volumeInfo.imageLinks
+                    ? book.volumeInfo.imageLinks.smallThumbnail
+                    : defaultBook,
                   public_url: link,
-                  isBook: true
+                  isBook: true,
                 };
               });
-              matches = matches.concat(bookMatches)
+              matches = matches.concat(bookMatches);
+              matches = matches.slice(0, 10);
+              // console.log(matches);
             }
             setSuggestions(matches);
             // console.log(matches);
@@ -114,13 +127,11 @@ const SearchAuto = () => {
   };
 
   const onSuggestClickHandler = (text, link, isBook) => {
-    console.log("Is Book:",isBook);
+    console.log("Is Book:", isBook);
     setSearchKey(text);
     setSuggestions([]);
-    if(isBook)
-      navigate(`/books/${link}`);
-    else
-      navigate(`/profile/${link}`);
+    if (isBook) navigate(`/books/${link}`);
+    else navigate(`/profile/${link}`);
   };
 
   const handleSearch = () => {
@@ -154,7 +165,7 @@ const SearchAuto = () => {
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-             {searchKey.length === 0 ? (
+              {searchKey.length === 0 ? (
                 <IconButton onClick={handleSearch}>
                   <SearchOutlined />
                 </IconButton>
@@ -170,9 +181,6 @@ const SearchAuto = () => {
       {suggestions.length > 0 && (
         <div className={classes.suggestionDiv}>
           <>
-            <div className={classes.ss} onClick={handleSearch}>
-              {searchKey} {<span className={classes.people}>(all)</span>}
-            </div>
             {suggestions.map((suggestion, i) => {
               return (
                 <div
@@ -186,10 +194,25 @@ const SearchAuto = () => {
                     )
                   }
                 >
-                  {suggestion.name} {!suggestion.isBook && <span className={classes.people}>(People)</span>}
+                  <img
+                    alt={suggestion.name}
+                    src={
+                      suggestion.isBook
+                        ? suggestion.image
+                        : suggestion.profile_picture
+                        ? suggestion.profile_picture
+                        : defaultUserImage
+                    }
+                    height={50}
+                    width={50}
+                  />
+                  {suggestion.name}
                 </div>
               );
             })}
+            <div className={classes.seeall} onClick={handleSearch}>
+              <span className={classes.seealltext}>See All Result</span>
+            </div>
           </>
         </div>
       )}
@@ -198,4 +221,3 @@ const SearchAuto = () => {
 };
 
 export default SearchAuto;
-

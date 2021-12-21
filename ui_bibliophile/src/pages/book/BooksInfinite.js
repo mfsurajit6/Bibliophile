@@ -25,12 +25,11 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     flexWrap: "wrap",
     width: "100%",
-    gap:'20px',
+    gap: "20px",
   },
   skeletonWraper: {
     display: "flex",
     flexWrap: "wrap",
-    
   },
 }));
 
@@ -47,12 +46,12 @@ const Books = () => {
       setLoading(true);
       await getBooksByPage(pageNumber)
         .then((res) => {
-          if(res){
-            setTimeout(()=>{
+          if (res) {
+            setTimeout(() => {
               setLoading(false);
               setBooks([...books, ...res]);
               setPageNumber(pageNumber + 1);
-            },1000)
+            }, 1000);
           }
         })
         .catch((err) => console.log(err));
@@ -60,19 +59,19 @@ const Books = () => {
   };
 
   useEffect(() => {
-      fetchNext().then(() => {
-        getAllBooks()
-          .then((res) => {
-            setTotalPages(Math.ceil(res.length / 12));
-          })
-          .catch((err) => console.log(err));
-      });
+    fetchNext().then(() => {
+      getAllBooks()
+        .then((res) => {
+          setTotalPages(Math.ceil(res.length / 12));
+        })
+        .catch((err) => console.log(err));
+    });
   }, []);
 
   const MultipleBookSkeleton = () => {
     return (
       <div className={classes.skeletonWraper}>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+        {[1, 2, 3, 4, 5, 6, 7].map((n) => (
           <BookSkeleton key={n} />
         ))}
       </div>
@@ -85,7 +84,7 @@ const Books = () => {
         <Typography variant="h5" className={classes.title}>
           Collection
         </Typography>
-        
+
         <div className={classes.books}>
           <InfiniteScroll
             dataLength={books.length}

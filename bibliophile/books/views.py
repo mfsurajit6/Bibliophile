@@ -445,50 +445,36 @@ class BookStatisticsAPIView(APIView):
         except Book.DoesNotExist:
             return Response({"msg":"Book not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 class UserRecommendationAPIView(APIView):
     def get(self, request):
         print(request.user.id)
         try:
-            user = User.objects.get(id = request.user.id)
-            print("user:", user)
-            review_obj = Review.objects.filter(user = user, rating__in = [4,5]).values('book', 'rating').order_by('-rating')[:1]
+            user = User.objects.get(id=request.user.id)
+            review_obj = Review.objects.filter(user=user, rating__in=[4, 5]).values('book', 'rating').order_by("?")[:1]
             if review_obj:
-                # print("inside users choices")
-                # print("reviews:", review_obj[0])
-                book = Book.objects.get(pk = review_obj[0]['book'])
-                # print(book.title)
+                book = Book.objects.get(pk=review_obj[0]['book'])
                 get_books = SearchBook()
                 get_books_title = get_books.getResults(book.title)
                 get_books_author = get_books.getResults(book.author)
                 books = get_books_title+get_books_author
                 recommendation = random.choices(books, k=10)
-                # print("author_books:", get_books_author)
-                # print('title_books:', get_books_title)
-                # return Response({"data": {"title" : serializer.data['title'] , "author" : serializer.data['author']}}, status=status.HTTP_200_OK)
                 return Response(recommendation, status=status.HTTP_200_OK)
 
             else:
-                # print("else ratings given by user 0")
                 popular_book = BookShelf.objects.values("book_id").annotate(book_count=Count('book_id')).order_by('-book_count')[:1]
-                # print(popular_book)
                 book = Book.objects.get(pk = popular_book[0]['book_id'])
-                # print("title:" , book.title)
-                # print("Author:", book.author)
                 get_books = SearchBook()
                 get_books_title = get_books.getResults(book.title)
                 get_books_author = get_books.getResults(book.author)
-
-                # print("author_books:", get_books_author)
-                # print('title_books:', get_books_title)
                 books = get_books_title+get_books_author
                 recommendation = random.choices(books, k=10)
-                # print("books:",books)
-                # return Response({"data": {"title" : serializer.data['title'] , "author" : serializer.data['author']}}, status=status.HTTP_200_OK)
                 return Response(recommendation, status=status.HTTP_200_OK)
 
         except Exception as e:
             print(e)
-            return Response({'msg':'error'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'msg': 'error'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class ReaderListAPIView(APIView):
     def get(self, request, book_id):
